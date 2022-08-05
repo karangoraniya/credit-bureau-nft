@@ -68,6 +68,10 @@ contract CreditCertificate is ERC721, ERC721URIStorage, Ownable {
         _burn(tokenId);
     }
 
+    function getLockData(address _holder) public view returns (Lock memory) {
+        return locked[_holder];
+    }
+
     function _beforeTokenTransfer(
         address from,
         address to,

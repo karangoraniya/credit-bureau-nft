@@ -28,11 +28,36 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
+export declare namespace CreditCertificate {
+  export type LockStruct = {
+    holder: PromiseOrValue<string>;
+    amount: PromiseOrValue<BigNumberish>;
+    tokenId: PromiseOrValue<BigNumberish>;
+    name: PromiseOrValue<string>;
+    description: PromiseOrValue<string>;
+  };
+
+  export type LockStructOutput = [
+    string,
+    BigNumber,
+    BigNumber,
+    string,
+    string
+  ] & {
+    holder: string;
+    amount: BigNumber;
+    tokenId: BigNumber;
+    name: string;
+    description: string;
+  };
+}
+
 export interface CreditCertificateInterface extends utils.Interface {
   functions: {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
+    "getLockData(address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "lockFunds(uint256,string,string,string)": FunctionFragment;
     "locked(address)": FunctionFragment;
@@ -56,6 +81,7 @@ export interface CreditCertificateInterface extends utils.Interface {
       | "approve"
       | "balanceOf"
       | "getApproved"
+      | "getLockData"
       | "isApprovedForAll"
       | "lockFunds"
       | "locked"
@@ -85,6 +111,10 @@ export interface CreditCertificateInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getApproved",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLockData",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
@@ -164,6 +194,10 @@ export interface CreditCertificateInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getApproved",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLockData",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -331,6 +365,11 @@ export interface CreditCertificate extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    getLockData(
+      _holder: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[CreditCertificate.LockStructOutput]>;
+
     isApprovedForAll(
       owner: PromiseOrValue<string>,
       operator: PromiseOrValue<string>,
@@ -438,6 +477,11 @@ export interface CreditCertificate extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  getLockData(
+    _holder: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<CreditCertificate.LockStructOutput>;
+
   isApprovedForAll(
     owner: PromiseOrValue<string>,
     operator: PromiseOrValue<string>,
@@ -544,6 +588,11 @@ export interface CreditCertificate extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    getLockData(
+      _holder: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<CreditCertificate.LockStructOutput>;
 
     isApprovedForAll(
       owner: PromiseOrValue<string>,
@@ -713,6 +762,11 @@ export interface CreditCertificate extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getLockData(
+      _holder: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isApprovedForAll(
       owner: PromiseOrValue<string>,
       operator: PromiseOrValue<string>,
@@ -810,6 +864,11 @@ export interface CreditCertificate extends BaseContract {
 
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getLockData(
+      _holder: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

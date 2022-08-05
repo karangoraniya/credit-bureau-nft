@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Text, Row, Button, Modal, Input, Loading } from "@nextui-org/react";
 import { ethers } from "ethers";
 import { NFTStorage, File } from "nft.storage";
-import CreditCertificate from "../artifacts/contracts/CreditCerificate.sol/CreditCertificate.json";
+import CreditCertificate from "../artifacts/contracts/CreditCertificate.sol/CreditCertificate.json";
 
 export const GetCertificate = () => {
   const [name, setName] = useState("");
