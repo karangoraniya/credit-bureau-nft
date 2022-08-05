@@ -34,7 +34,7 @@ export interface CreditCertificateInterface extends utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
-    "lockFunds(uint256,string,string)": FunctionFragment;
+    "lockFunds(uint256,string,string,string)": FunctionFragment;
     "locked(address)": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -94,6 +94,7 @@ export interface CreditCertificateInterface extends utils.Interface {
     functionFragment: "lockFunds",
     values: [
       PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>
     ]
@@ -340,6 +341,7 @@ export interface CreditCertificate extends BaseContract {
       _amount: PromiseOrValue<BigNumberish>,
       _tokenUri: PromiseOrValue<string>,
       _name: PromiseOrValue<string>,
+      _desc: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -347,11 +349,12 @@ export interface CreditCertificate extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, BigNumber, string] & {
+      [string, BigNumber, BigNumber, string, string] & {
         holder: string;
         amount: BigNumber;
         tokenId: BigNumber;
         name: string;
+        description: string;
       }
     >;
 
@@ -445,6 +448,7 @@ export interface CreditCertificate extends BaseContract {
     _amount: PromiseOrValue<BigNumberish>,
     _tokenUri: PromiseOrValue<string>,
     _name: PromiseOrValue<string>,
+    _desc: PromiseOrValue<string>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -452,11 +456,12 @@ export interface CreditCertificate extends BaseContract {
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<
-    [string, BigNumber, BigNumber, string] & {
+    [string, BigNumber, BigNumber, string, string] & {
       holder: string;
       amount: BigNumber;
       tokenId: BigNumber;
       name: string;
+      description: string;
     }
   >;
 
@@ -550,6 +555,7 @@ export interface CreditCertificate extends BaseContract {
       _amount: PromiseOrValue<BigNumberish>,
       _tokenUri: PromiseOrValue<string>,
       _name: PromiseOrValue<string>,
+      _desc: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -557,11 +563,12 @@ export interface CreditCertificate extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, BigNumber, string] & {
+      [string, BigNumber, BigNumber, string, string] & {
         holder: string;
         amount: BigNumber;
         tokenId: BigNumber;
         name: string;
+        description: string;
       }
     >;
 
@@ -716,6 +723,7 @@ export interface CreditCertificate extends BaseContract {
       _amount: PromiseOrValue<BigNumberish>,
       _tokenUri: PromiseOrValue<string>,
       _name: PromiseOrValue<string>,
+      _desc: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -815,6 +823,7 @@ export interface CreditCertificate extends BaseContract {
       _amount: PromiseOrValue<BigNumberish>,
       _tokenUri: PromiseOrValue<string>,
       _name: PromiseOrValue<string>,
+      _desc: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

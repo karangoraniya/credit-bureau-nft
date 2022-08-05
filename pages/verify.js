@@ -1,9 +1,9 @@
 import React from "react";
 import { HeaderNav } from "../components/HeaderNav";
 import { Text, Container, Row, Col } from "@nextui-org/react";
-import { GetCertificate } from "../components/GetCertificate";
+import { VerifyCertificate } from "../components/VerifyCertificate";
 
-export default function Home() {
+export default function Verify() {
   return (
     <>
       <HeaderNav />
@@ -18,11 +18,11 @@ export default function Home() {
               }}
               weight="bold"
             >
-              Credit Bureau NFT
+              Verify Credit Bureau NFT
             </Text>
           </Col>
         </Row>
-        <GetCertificate />
+        <VerifyCertificate />
       </Container>
     </>
   );

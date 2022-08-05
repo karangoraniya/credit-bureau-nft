@@ -1,7 +1,6 @@
 import React from "react";
 import { Row, Grid, Image, Link } from "@nextui-org/react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import logo from '../public/logo.png'
 
 
 export const HeaderNav = () => {
@@ -24,9 +23,9 @@ export const HeaderNav = () => {
           <Grid xs={12} md={6} lg={6} justify="center">
             <Link css={{ color: "#fff" }}>
               <Image
-                src={logo}
+                src='/logo.png'
                 alt="Default Image"
-                width={50}
+                width={80}
                 height={50}
               />
             </Link>
