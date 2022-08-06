@@ -10,35 +10,64 @@ import {
   Image,
   Button,
 } from "@nextui-org/react";
-import { ethers } from "ethers";
+import { ethers, AlchemyProvider } from "ethers";
 import CreditCertificate from "../artifacts/contracts/CreditCertificate.sol/CreditCertificate.json";
+import { Strategies, Networks } from "@zoralabs/nft-hooks";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import Swal from "sweetalert2";
+
 
 export const VerifyCertificate = () => {
+  const [address, setAddress] = useState();
   const [loading, setIsLoading] = useState(false);
-  const [address, setAddress] = useState("");
-  const [nftData, setNFTData] = useState([]);
+  const [nftData, setNFTData] = useState();
 
-  const verifyNft = async () => {
+  async function verifyNft() {
     setIsLoading(true);
-    if (!address) {
+    const addressCheck = ethers.utils.isAddress( address )
+    if(!address || !addressCheck){
+      Swal.fire({
+        icon: "error",
+        title: "Please Check your address",
+      });
       setIsLoading(false);
-      alert("Please fill all the input values");
-      return;
+      return
     }
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    let contract = new ethers.Contract(process.env.NEXT_PUBLIC_CONTRACT, CreditCertificate.abi, provider);
-    
     try {
+      const provider = new ethers.providers.JsonRpcProvider(
+        "https://eth-rinkeby.alchemyapi.io/v2/iaMqWrr-vV8FpPeRTTYoIiG4ADyuaA7q"
+      );
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_CONTRACT,
+        CreditCertificate.abi,
+        provider
+      );
       let data = await contract.getLockData(address);
-      setNFTData(data)
-     
+      if (data.name != "" && data.description != "") {
+        setNFTData({
+          name: data.name,
+          tokenUrI: data.tokenUrI,
+          tokenId: data.tokenId.toString(),
+          description: data.description,
+          amountLocked: data.amount.toString(),
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "No Data for this address",
+        });
+      }
       setIsLoading(false);
+      console.log(nftData);
     } catch (err) {
-      console.log(err.message);
       setIsLoading(false);
+      Swal.fire({
+        icon: "error",
+        title: "Something went wrong",
+      });
+      console.log(err.message);
     }
-    console.log(nftData)
-  };
+  }
 
   return (
     <>
@@ -49,55 +78,78 @@ export const VerifyCertificate = () => {
               <Input
                 clearable
                 label="Search for Holder Address"
-                placeholder="0x00000...."
+                // placeholder="0x00000...."
+                initialValue="0x00000..."
                 onChange={(e) => setAddress(e.target.value)}
               />
             </Row>
             <Row css={{ mt: "10px" }} justify="center" align="center">
-              <Button size="sm" onClick={verifyNft}>
-                Verify
-              </Button>
+              {!loading ? (
+                <Button size="sm" onPress={verifyNft}>
+                  Verify
+                </Button>
+              ) : (
+                <Button size="sm" disabled>
+                  Verifying...
+                </Button>
+              )}
             </Row>
           </Grid>
         </Grid.Container>
       </Row>
-      <Row justify="center" align="center" css={{ m: "40px 0 0 0" }}>
-        <Grid.Container justify="center" align="center">
-          <Grid xs={12} lg={4} md={6} justify="center" align="center">
-            <Card>
-              <Card.Header>
-                <Row justify="flex-end">
-                  <Col span={12}>
-                    <Text h4 justify="center" align="center">
-                      Credit Bureau Certificate #{"0"}
-                    </Text>
-                  </Col>
-                </Row>
-              </Card.Header>
-              <Card.Body css={{ py: "$2" }}>
-                <Row justify="flex-end">
-                  <Col span={12}>
-                    <Text justify="center" align="center">
-                      This is certificate issued for {"Name"} for stacking{" "}
-                      {"amount"} MATIC in credit bureau
-                    </Text>
-                  </Col>
-                </Row>
-                <Image
-                  css={{ m: "10px 0 0 0" }}
-                  showSkeleton
-                  width={320}
-                  height={180}
-                  maxDelay={10000}
-                  src="http://www.deelay.me/10000/https://github.com/nextui-org/nextui/blob/next/apps/docs/public/nextui-banner.jpeg?raw=true"
-                  alt="Default Image"
-                />
-              </Card.Body>
-              <Card.Footer></Card.Footer>
-            </Card>
-          </Grid>
-        </Grid.Container>
-      </Row>
+      {nftData ? (
+        <Row justify="center" align="center" css={{ m: "40px 0 0 0" }}>
+          <Grid.Container justify="center" align="center">
+            <Grid xs={12} lg={4} md={6} justify="center" align="center">
+              <Card>
+                <Card.Header>
+                  <Row justify="flex-end">
+                    <Col span={12}>
+                      <Text h4 justify="center" align="center">
+                        Certificate Number #{nftData.tokenId}
+                      </Text>
+                    </Col>
+                  </Row>
+                </Card.Header>
+                <Card.Body css={{ py: "$2" }}>
+                  <Row justify="flex-end">
+                    <Col span={12}>
+                      <Text color={"secondary"} justify="center" align="center">
+                        Certificate of {nftData.name}
+                      </Text>
+                    </Col>
+                  </Row>
+                  <Row justify="center">
+                    <Col span={12}>
+                      <Text justify="center" align="center">
+                        {nftData.description}
+                      </Text>
+                    </Col>
+                  </Row>
+                  <Image
+                    css={{ m: "10px 0 0 0" }}
+                    showSkeleton
+                    width={320}
+                    height={180}
+                    maxDelay={10000}
+                    src={nftData.tokenUrI}
+                    alt="Certificate"
+                  />
+                </Card.Body>
+                <Card.Footer></Card.Footer>
+              </Card>
+            </Grid>
+          </Grid.Container>
+        </Row>
+      ) : (
+        <Row justify="center" align="center" css={{ m: "40px 0 0 0" }}>
+          <Grid.Container justify="center" align="center">
+            <Grid xs={12} lg={4} md={6} justify="center" align="center">
+              <Text>No Data To show</Text>
+            </Grid>
+          </Grid.Container>
+        </Row>
+      )}
     </>
   );
 };

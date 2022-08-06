@@ -18,6 +18,7 @@ contract CreditCertificate is ERC721, ERC721URIStorage, Ownable {
         address holder;
         uint256 amount;
         uint256 tokenId;
+        string tokenUrI;
         string name;
         string description;
     }
@@ -44,18 +45,18 @@ contract CreditCertificate is ERC721, ERC721URIStorage, Ownable {
         require(_amount == msg.value);
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
-        locked[msg.sender] = Lock(msg.sender, _amount, tokenId, _name, _desc);
+        locked[msg.sender] = Lock(msg.sender, (_amount / 1 ether), tokenId, _tokenUri, _name, _desc);
         safeMint(msg.sender, _tokenUri, tokenId);
     }
 
     function unLock(address _beneficiary) external payable {
         require(msg.sender == _beneficiary, "Only owner can unlock");
         require(
-            locked[_beneficiary].amount > 0,
+            locked[_beneficiary].holder == _beneficiary,
             "You don't have any token Locked"
         );
         address payable holder = payable(_beneficiary);
-        holder.transfer(locked[_beneficiary].amount);
+        holder.transfer((locked[_beneficiary].amount)*(10**18));
         burn(locked[_beneficiary].tokenId);
         delete locked[_beneficiary];
     }

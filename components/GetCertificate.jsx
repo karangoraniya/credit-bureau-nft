@@ -1,14 +1,28 @@
 import { useEffect, useState } from "react";
-import { Text, Row, Button, Modal, Input, Loading } from "@nextui-org/react";
+import {
+  Text,
+  Row,
+  Button,
+  Modal,
+  Input,
+  Loading,
+  Grid,
+  Card,
+  Col,
+  Image,
+} from "@nextui-org/react";
 import { ethers } from "ethers";
-import { NFTStorage, File } from "nft.storage";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
 import CreditCertificate from "../artifacts/contracts/CreditCertificate.sol/CreditCertificate.json";
+import Swal from "sweetalert2";
 
 export const GetCertificate = () => {
   const [name, setName] = useState("");
   const [maticAmount, setMaticAmount] = useState();
   const [visible, setVisible] = useState(false);
   const [loading, setIsLoading] = useState();
+  const [nftData, setNFTData] = useState({});
+  const { address, isConnected } = useAccount();
 
   const handler = () => setVisible(true);
 
@@ -17,45 +31,71 @@ export const GetCertificate = () => {
     console.log("closed");
   };
 
-  async function checkForWallet() {
-    try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-      const walletAddress = await signer.getAddress();
-      console.log(walletAddress);
-    } catch (err) {
-      console.log(err);
+  async function checkForCertificate() {
+    if (isConnected && address) {
+      try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const contract = new ethers.Contract(
+          process.env.NEXT_PUBLIC_CONTRACT,
+          CreditCertificate.abi,
+          provider
+        );
+        let data = await contract.getLockData(address);
+        console.log(data);
+        setNFTData({
+          name: data.name,
+          tokenUrI: data.tokenUrI,
+          tokenId: data.tokenId.toString(),
+          description: data.description,
+          amountLocked: data.amount.toString(),
+        });
+        console.log(nftData);
+      } catch (err) {
+        console.log(err.message);
+      }
     }
   }
 
-  // async function storeNFT() {
-
-  //   // load the file from disk
-  //   const image = createImage;
-  //   const description = "";
-  //   // create a new NFTStorage client using our API key
-  //   const nftstorage = new NFTStorage({ token: process.env.NEXT_PUBLIC_NFT_STORAGE_KEY});
-
-  //   // call client.store, passing in the image & metadata
-  //   const result =  nftstorage.store({
-  //     image,
-  //     name,
-  //     description,
-  //   });
-
-  //   console.log(result)
-  // }
-
   useEffect(() => {
-    checkForWallet();
-  }, []);
+    checkForCertificate();
+  }, [isConnected, address]);
+
+  const unLockFunds = async () => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(
+      process.env.NEXT_PUBLIC_CONTRACT,
+      CreditCertificate.abi,
+      signer
+    );
+    try {
+      const tx = await contract.unLock(address);
+      await tx.wait();
+      console.log(tx);
+      setIsLoading(false);
+      closeHandler();
+      Swal.fire({
+        icon: "success",
+        title: "MATIC's unlock successfully",
+        html: `<a href="https://rinkeby.etherscan.io/tx/${tx.hash}">View on explorer</a>`,
+      });
+    } catch (err) {
+      console.log(err.message);
+      setIsLoading(false);
+      closeHandler();
+      Swal.fire({
+        icon: "error",
+        title: "Something Went Wrong",
+      });
+    }
+  };
 
   const createCertificate = async () => {
     setIsLoading(true);
     const fullName = name;
     const amount = ethers.utils.parseUnits(maticAmount, "ether");
-    const description = `This is certificate issued for ${fullName} for stacking ${amount} MATIC in credit bureau`;
-    const tokenUri = "we";
+    const description = `This is certificate issued for ${fullName} for stacking ${maticAmount} MATIC in credit bureau`;
+    const tokenUri = "uri";
     if (!(amount > 0)) {
       setIsLoading(false);
       alert("Amount should be greater than 1");
@@ -68,11 +108,12 @@ export const GetCertificate = () => {
     }
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    let contract = new ethers.Contract(
+    const contract = new ethers.Contract(
       process.env.NEXT_PUBLIC_CONTRACT,
       CreditCertificate.abi,
       signer
     );
+
     try {
       const tx = await contract.lockFunds(
         amount,
@@ -84,25 +125,100 @@ export const GetCertificate = () => {
         }
       );
       await tx.wait();
+      console.log(tx);
       setIsLoading(false);
+      closeHandler();
+      Swal.fire({
+        icon: "success",
+        title: "Certificate generate successfully",
+        html: `<a href="https://rinkeby.etherscan.io/tx/${tx.hash}">View on explorer</a>`,
+      });
     } catch (err) {
       console.log(err.message);
       setIsLoading(false);
+      closeHandler();
+      Swal.fire({
+        icon: "error",
+        title: "Something Went Wrong",
+      });
     }
   };
 
   return (
     <>
-      <Row justify="center" align="center" css={{ m: "40px 0 0 0" }}>
-        <div>
-          <Text>Lock MATIC to get certificate</Text>
-        </div>
-      </Row>
-      <Row justify="center" align="center" css={{ m: "10px 0 0 0" }}>
-        <div>
-          <Button onClick={handler}>Get Certificate</Button>
-        </div>
-      </Row>
+      {nftData.name !== "" ? (
+        <Row justify="center" align="center" css={{ m: "40px 0 0 0" }}>
+          <Grid.Container justify="center" align="center">
+            <Grid xs={12} lg={4} md={6} justify="center" align="center">
+              <Card>
+                <Card.Header>
+                  <Row justify="flex-end">
+                    <Col span={12}>
+                      <Text h4 justify="center" align="center">
+                        Certificate Number #{nftData.tokenId}
+                      </Text>
+                    </Col>
+                  </Row>
+                </Card.Header>
+                <Card.Body css={{ py: "$2" }}>
+                  <Row justify="flex-end">
+                    <Col span={12}>
+                      <Text color={"secondary"} justify="center" align="center">
+                        Certificate of {nftData.name}
+                      </Text>
+                    </Col>
+                  </Row>
+                  <Row justify="center">
+                    <Col span={12}>
+                      <Text justify="center" align="center">
+                        {nftData.description}
+                      </Text>
+                    </Col>
+                  </Row>
+                  <Image
+                    css={{ m: "10px 0 0 0" }}
+                    showSkeleton
+                    width={320}
+                    height={180}
+                    maxDelay={10000}
+                    src={nftData.tokenUrI}
+                    alt="Certificate"
+                  />
+                </Card.Body>
+                <Card.Footer>
+                  <Row
+                    justify="center"
+                    align="center"
+                    css={{ m: "40px 0 0 0" }}
+                  >
+                    <Button onClick={unLockFunds}>UnLock Funds</Button>
+                  </Row>
+                </Card.Footer>
+              </Card>
+            </Grid>
+          </Grid.Container>
+        </Row>
+      ) : (
+        <>
+          <Row justify="center" align="center" css={{ m: "40px 0 0 0" }}>
+            <div>
+              <Text>
+                Lock MATIC to get certificate {"(Only one certificate allowed)"}
+              </Text>
+            </div>
+          </Row>
+
+          <Row justify="center" align="center" css={{ m: "10px 0 0 0" }}>
+            <div>
+              {isConnected ? (
+                <Button onClick={handler}>Get Certificate</Button>
+              ) : (
+                <Button disabled>Connect Wallet First</Button>
+              )}
+            </div>
+          </Row>
+        </>
+      )}
 
       <Modal
         closeButton
@@ -154,7 +270,7 @@ export const GetCertificate = () => {
               <Button auto flat color="error" onClick={closeHandler}>
                 Close
               </Button>
-              <Button auto onClick={createCertificate}>
+              <Button auto color="success" onClick={createCertificate}>
                 Lock
               </Button>
             </>

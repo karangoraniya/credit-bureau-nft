@@ -22,5 +22,5 @@ export type { ERC165 } from "./@openzeppelin/contracts/utils/introspection/ERC16
 export { ERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/ERC165__factory";
 export type { IERC165 } from "./@openzeppelin/contracts/utils/introspection/IERC165";
 export { IERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/IERC165__factory";
-export type { CreditCertificate } from "./contracts/CreditCerificate.sol/CreditCertificate";
-export { CreditCertificate__factory } from "./factories/contracts/CreditCerificate.sol/CreditCertificate__factory";
+export type { CreditCertificate } from "./contracts/CreditCertificate";
+export { CreditCertificate__factory } from "./factories/contracts/CreditCertificate__factory";
