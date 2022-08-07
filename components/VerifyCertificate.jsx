@@ -12,8 +12,6 @@ import {
 } from "@nextui-org/react";
 import { ethers, AlchemyProvider } from "ethers";
 import CreditCertificate from "../artifacts/contracts/CreditCertificate.sol/CreditCertificate.json";
-import { Strategies, Networks } from "@zoralabs/nft-hooks";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
 import Swal from "sweetalert2";
 
 
@@ -35,7 +33,7 @@ export const VerifyCertificate = () => {
     }
     try {
       const provider = new ethers.providers.JsonRpcProvider(
-        "https://eth-rinkeby.alchemyapi.io/v2/iaMqWrr-vV8FpPeRTTYoIiG4ADyuaA7q"
+        `https://polygon-mumbai.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_ID}`
       );
       const contract = new ethers.Contract(
         process.env.NEXT_PUBLIC_CONTRACT,
