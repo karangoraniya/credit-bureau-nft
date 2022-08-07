@@ -10,25 +10,30 @@ import {
   Card,
   Col,
   Image,
+  Spacer,
+  Link,
 } from "@nextui-org/react";
 import { ethers } from "ethers";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import CreditCertificate from "../artifacts/contracts/CreditCertificate.sol/CreditCertificate.json";
 import Swal from "sweetalert2";
+import { useRouter } from "next/router";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+
 
 export const GetCertificate = () => {
   const [name, setName] = useState("");
+  const router = useRouter();
   const [maticAmount, setMaticAmount] = useState();
   const [visible, setVisible] = useState(false);
   const [loading, setIsLoading] = useState();
-  const [nftData, setNFTData] = useState({});
+  const [nftData, setNFTData] = useState();
   const { address, isConnected } = useAccount();
 
   const handler = () => setVisible(true);
 
   const closeHandler = () => {
     setVisible(false);
-    console.log("closed");
   };
 
   async function checkForCertificate() {
@@ -53,6 +58,8 @@ export const GetCertificate = () => {
       } catch (err) {
         console.log(err.message);
       }
+    } else {
+      setNFTData();
     }
   }
 
@@ -61,6 +68,7 @@ export const GetCertificate = () => {
   }, [isConnected, address]);
 
   const unLockFunds = async () => {
+    setIsLoading(true);
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
     const contract = new ethers.Contract(
@@ -78,11 +86,11 @@ export const GetCertificate = () => {
         icon: "success",
         title: "MATIC's unlock successfully",
         html: `<a href="https://rinkeby.etherscan.io/tx/${tx.hash}">View on explorer</a>`,
-      });
-    } catch (err) {
-      console.log(err.message);
+      }).then(router.push('/'));
       setIsLoading(false);
-      closeHandler();
+    } catch (err) {
+      setIsLoading(false);
+      console.log(err.message);
       Swal.fire({
         icon: "error",
         title: "Something Went Wrong",
@@ -95,10 +103,10 @@ export const GetCertificate = () => {
     const fullName = name;
     const amount = ethers.utils.parseUnits(maticAmount, "ether");
     const description = `This is certificate issued for ${fullName} for stacking ${maticAmount} MATIC in credit bureau`;
-    const tokenUri = "uri";
-    if (!(amount > 0)) {
+    const tokenUri = "https://ipfs.io/ipfs/bafkreieokh3pwl6h2ydnjv3a2cl7aqxed5gfxp6mto74i4p53xminikfyu";
+    if (maticAmount < 100) {
       setIsLoading(false);
-      alert("Amount should be greater than 1");
+      alert("Amount should be greater than 100");
       return;
     }
     if (!fullName || !maticAmount) {
@@ -132,7 +140,7 @@ export const GetCertificate = () => {
         icon: "success",
         title: "Certificate generate successfully",
         html: `<a href="https://rinkeby.etherscan.io/tx/${tx.hash}">View on explorer</a>`,
-      });
+      }).then(router.push('/'));
     } catch (err) {
       console.log(err.message);
       setIsLoading(false);
@@ -146,7 +154,7 @@ export const GetCertificate = () => {
 
   return (
     <>
-      {nftData.name !== "" ? (
+      {nftData && nftData.name !== "" ? (
         <Row justify="center" align="center" css={{ m: "40px 0 0 0" }}>
           <Grid.Container justify="center" align="center">
             <Grid xs={12} lg={4} md={6} justify="center" align="center">
@@ -178,8 +186,8 @@ export const GetCertificate = () => {
                   <Image
                     css={{ m: "10px 0 0 0" }}
                     showSkeleton
-                    width={320}
-                    height={180}
+                    width={500}
+                    height={300}
                     maxDelay={10000}
                     src={nftData.tokenUrI}
                     alt="Certificate"
@@ -191,7 +199,11 @@ export const GetCertificate = () => {
                     align="center"
                     css={{ m: "40px 0 0 0" }}
                   >
-                    <Button onClick={unLockFunds}>UnLock Funds</Button>
+                    {!loading ? (
+                      <Button onClick={unLockFunds}>UnLock Funds</Button>
+                    ) : (
+                      <Button disabled>UnLocking...</Button>
+                    )}
                   </Row>
                 </Card.Footer>
               </Card>
@@ -201,24 +213,35 @@ export const GetCertificate = () => {
       ) : (
         <>
           <Row justify="center" align="center" css={{ m: "40px 0 0 0" }}>
-            <div>
-              <Text>
-                Lock MATIC to get certificate {"(Only one certificate allowed)"}
-              </Text>
-            </div>
+            <Text>
+              Lock MATIC to get certificate {"(Only one certificate allowed)"}
+            </Text>
           </Row>
-
           <Row justify="center" align="center" css={{ m: "10px 0 0 0" }}>
-            <div>
-              {isConnected ? (
+            {isConnected ? (
+              <>
                 <Button onClick={handler}>Get Certificate</Button>
-              ) : (
-                <Button disabled>Connect Wallet First</Button>
-              )}
-            </div>
+              </>
+            ) : (
+              <>
+                {/* <Button disabled>Connect Wallet</Button> */}
+                <ConnectButton/>
+              </>
+            )}
           </Row>
         </>
       )}
+      <Spacer y={1} />
+      <Row justify="center" align="center" css={{ m: "10px 0 0 0" }}>
+        <Text>Or</Text>
+      </Row>
+      <Row justify="center" align="center" css={{ m: "10px 0 0 0" }}>
+        <Text>
+          <Button onPress={() => router.push("/verify")}>
+            Verify Certificate
+          </Button>
+        </Text>
+      </Row>
 
       <Modal
         closeButton
@@ -237,7 +260,8 @@ export const GetCertificate = () => {
         <Modal.Body>
           {loading ? (
             <Loading
-              loadingCss={{ $$loadingSize: "100px", $$loadingBorder: "10px" }}
+              type="points-opacity"
+              loadingCss={{ $$loadingSize: "50px" }}
             />
           ) : (
             <>
@@ -256,6 +280,8 @@ export const GetCertificate = () => {
                 fullWidth
                 color="primary"
                 size="lg"
+                type="number" 
+                min="100"
                 placeholder="Amount In Matic"
                 onChange={(e) => setMaticAmount(e.target.value)}
               />

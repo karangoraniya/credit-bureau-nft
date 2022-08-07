@@ -21,7 +21,7 @@ export const HeaderNav = () => {
       >
         <Grid.Container gap={2} justify="center">
           <Grid xs={12} md={6} lg={6} justify="center">
-            <Link css={{ color: "#fff" }}>
+            <Link href="/" css={{ color: "#fff" }}>
               <Image
                 src='/logo.png'
                 alt="Default Image"

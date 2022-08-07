@@ -16,6 +16,7 @@
     "@zoralabs/nft-hooks": "^1.1.8",
     "@zoralabs/v3": "^1.0.10",
     "next": "12.2.3",
+    "nft.storage": "^7.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "sweetalert2": "^11.4.25",

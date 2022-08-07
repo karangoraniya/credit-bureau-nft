@@ -440,8 +440,8 @@
       ]
     },
     "/Users/mohitchandel/Documents/hackthon-project/credit-bureau-nft/contracts/CreditCertificate.sol": {
-      "lastModificationDate": 1659780331144,
-      "contentHash": "0e3311e7c487c2cceb40238a3791e0ca",
+      "lastModificationDate": 1659781816326,
+      "contentHash": "a2dc1d037abfd8bb60fe86e34ee3cee7",
       "sourceName": "contracts/CreditCertificate.sol",
       "solcConfig": {
         "version": "0.8.9",

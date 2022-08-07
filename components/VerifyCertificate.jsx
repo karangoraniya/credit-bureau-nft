@@ -76,9 +76,10 @@ export const VerifyCertificate = () => {
           <Grid justify="center" align="center">
             <Row>
               <Input
+                size={"lg"}
+                css={{w: '300px'}}
                 clearable
                 label="Search for Holder Address"
-                // placeholder="0x00000...."
                 initialValue="0x00000..."
                 onChange={(e) => setAddress(e.target.value)}
               />
